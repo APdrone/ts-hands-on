@@ -1,0 +1,682 @@
+# Object Oriented Programming(OOPS)
+
+=============================================
+
+objects are concreate, the things we work in the code. it is instance of class. class based creation is an alternative to using
+object literals
+
+classes blueprint for objects. classes make creation of multiple similar objects much easier
+
+# creating first class
+
+=============================================
+
+class Department {
+name: string;
+
+constructor(n: string) {
+this.name = n;
+}
+}
+
+const accounting = new Department("Accounting");
+
+console.log(accounting);
+
+# constructor function and this keyword
+
+============================================================
+
+if we assign "describe" method to another variable and tries to call it, we will get error . we can set type for constructor as "this"
+for the reason mentioned below
+
+class Department {
+name: string;
+
+constructor(n: string) {
+this.name = n;
+}
+//we need to pass any parameter but it will be called by isntance of the department and now "accountingCopy.describe();" will give error
+// describe() {
+describe(this: Department) {
+console.log("Department is :" + this.name);
+}
+}
+
+const accounting = new Department("Accounting");
+
+accounting.describe();
+
+// const accountingCopy = {
+// describe: accounting.describe,
+// };
+
+//now to fix this we have to add "name" property as well
+const accountingCopy = {
+name: "Copy",
+describe: accounting.describe,
+};
+
+//"this" will points to accountingCopy and "name" property doesnt exist in "accountingCopy"
+accountingCopy.describe(); //undefined
+
+# private and public access modifier
+
+=============================================
+
+currently without modifiers we can modify variables like this which is not a correct way as we should allow update only through the
+add method:
+
+accounting.employees[2] = "Anna";
+
+we can use "private" modifier in variables and methods. "public" modifier is by default
+
+class Department {
+public name: string;
+private employees: string[] = [];
+
+constructor(n: string) {
+this.name = n;
+}
+describe(this: Department) {
+console.log("Department is :" + this.name);
+}
+addEmployee(employee: string) {
+this.employees.push(employee);
+}
+printEmployeeInformation() {
+console.log(this.employees.length);
+console.log(this.employees);
+}
+}
+
+const accounting = new Department("Accounting");
+
+accounting.describe();
+
+accounting.addEmployee("Max");
+accounting.addEmployee("Manu");
+
+//now below will get error, as employees are "private"
+accounting.employees[2] = "Anna";
+
+accounting.printEmployeeInformation();
+
+# shorthand initialization
+
+=============================================
+
+instead of defining variables ie id two times, once during declaration and then next in constructor signature like this
+
+class Department{
+public name:string;
+private id:string
+
+    constructor(name:string,id:string){
+        this.name=name;
+        this.id=id
+    }
+
+}
+
+instead we can write as :
+define signature with access modifiers and "public" is necessary here to be defined.
+
+class Department{
+public name:string;
+private id:string
+
+    constructor(public name:string,private id:string){
+
+    }
+
+}
+
+# readonly properties
+
+=============================================
+
+is introduced in TS, doesnt allow to write , we can do it once during initialization in constructor but not after that
+
+variables can be defined as
+
+public readonly id: string;
+
+or constructor
+
+class Department {
+// public readonly id: string;
+private employees: string[] = [];
+
+constructor(private readonly id: string, public name: string) {
+
+}
+describe(this: Department) {
+console.log(`Department (${this.id}): ${this.name}`);
+}
+addEmployee(employee: string) {
+this.id="d2" // will give error
+this.employees.push(employee);
+}
+printEmployeeInformation() {
+console.log(this.employees.length);
+console.log(this.employees);
+}
+}
+
+# inheritance:
+
+=============================================
+
+class Department {
+// public name: string;
+private employees: string[] = [];
+
+constructor(private readonly id: string, public name: string) {
+// this.name = n;
+}
+describe(this: Department) {
+console.log(`Department (${this.id}): ${this.name}`);
+}
+addEmployee(employee: string) {
+// this.id="d2"
+this.employees.push(employee);
+}
+printEmployeeInformation() {
+console.log(this.employees.length);
+console.log(this.employees);
+}
+}
+
+> we will get methods, variables and constructor , also we can add own constructor
+
+class ITDepartment extends Department {
+constructor( id: string, public admins: string[]) {
+super(id, "IT");
+this.admins = admins;
+}
+}
+
+const it = new ITDepartment("d", ["Max"]);
+
+it.describe();
+it.addEmployee("Max");
+it.addEmployee("Manu");
+it.printEmployeeInformation();
+
+console.log(it);
+
+class AccountingDepartment extends Department{
+constructor(id: string, public reports: string[]) {
+super(id, "Accounting");
+}
+addReport(text:string){
+this.reports.push(text);
+}
+printReports(){
+console.log(this.reports);
+}
+}
+
+const accounting=new AccountingDepartment('d2',[]);
+
+accounting.addReport('Something went wrong...');
+
+accounting.printReports();
+
+# overriding proerties and the protected modifier
+
+==========================================================================================
+
+currently we cant access "employees" as it is private property in "Department" class and outside that class , property
+wont be visible so if we still want to access the property in his extended class then we can make it "protected"
+protected is like private but it can be availble in the defined class but also in any class which extends this class
+
+class Department {
+// public name: string;
+// private employees: string[] = [];
+protected employees: string[] = [];
+
+constructor(private readonly id: string, public name: string) {
+// this.name = n;
+}
+describe(this: Department) {
+console.log(`Department (${this.id}): ${this.name}`);
+}
+addEmployee(employee: string) {
+// this.id="d2"
+this.employees.push(employee);
+}
+printEmployeeInformation() {
+console.log(this.employees.length);
+console.log(this.employees);
+}
+}
+
+class AccountingDepartment extends Department {
+constructor(id: string, public reports: string[]) {
+super(id, "Accounting");
+}
+addEmployee(name: string) {
+if (name === "Max") {
+return;
+}
+/\*
+currently we cant access "employees" as it is private property in "Department" class and outside that class , property
+wont be visible so if we still want to access the property in his extended class then we can make it "protected"
+protected is like private but it can be availble in the defined class but also in any class which extends this class
+
+    */
+
+    this.employees.push(name);
+
+}
+addReport(text: string) {
+this.reports.push(text);
+}
+printReports() {
+console.log(this.reports);
+}
+}
+
+# getters and setters
+
+==========================================================================================
+
+//to use setter
+// accounting.mostRecentReport = "";
+accounting.mostRecentReport = "Year End report";
+accounting.addReport("Something went wrong...");
+
+//we access getter method as a property
+console.log(accounting.mostRecentReport);
+
+class AccountingDepartment extends Department {
+private lastReport: string;
+
+get mostRecentReport() {
+if (this.lastReport) return this.lastReport;
+
+    throw new Error("No Report found !");
+
+}
+
+set mostRecentReport(value: string) {
+if (!value) throw new Error("Please pass in a valid value!");
+this.addReport(value);
+}
+
+constructor(id: string, public reports: string[]) {
+super(id, "Accounting");
+this.lastReport = reports[0];
+}
+addEmployee(name: string) {
+if (name === "Max") {
+return;
+}
+this.employees.push(name);
+}
+addReport(text: string) {
+this.reports.push(text);
+this.lastReport = text;
+}
+printReports() {
+console.log(this.reports);
+}
+}
+
+const accounting = new AccountingDepartment("d2", []);
+
+//to use setter
+// accounting.mostRecentReport = "";
+accounting.mostRecentReport = "Year End report";
+accounting.addReport("Something went wrong...");
+
+//we access getter method as a property
+console.log(accounting.mostRecentReport);
+
+# Static methods and properties
+
+==========================================================================================
+
+used for utilities eg Math.PI or Math.pow() which we access on class not on instances
+
+> Firstly ,we can use static methods and properties without creating intances directly from classes
+
+//property
+static fiscalYear = 2020;
+
+//static method
+
+static createEmployee(name: string) {
+return { name: name };
+}
+
+//can be accessed without instantialtion
+const employee1 = Department.createEmployee("Max");
+console.log(employee1, Department.fiscalYear);
+
+> Secondly , we cannot accesses static properties/varibles from non static part of the class. we cant access like
+> "this.fiscalYear" , though can be accessed like (Department.fiscalyear)
+
+> example:
+
+class Department {
+// public name: string;
+// private employees: string[] = [];
+protected employees: string[] = [];
+
+static fiscalYear = 2020;
+
+constructor(private readonly id: string, public name: string) {
+// this.name = n;
+}
+
+static createEmployee(name: string) {
+return { name: name };
+}
+
+describe(this: Department) {
+console.log(`Department (${this.id}): ${this.name}`);
+}
+addEmployee(employee: string) {
+// this.id="d2"
+this.employees.push(employee);
+}
+printEmployeeInformation() {
+console.log(this.employees.length);
+console.log(this.employees);
+}
+}
+
+# Abstract classes
+
+==========================================================================================
+
+> if a class has abstract method , class should be defined as abstract
+
+> if a class extending abstract class then it should define implement all its methods or define itself as abstract
+
+> it is useful, if we want to enforce all classes share some common method/properties. also we dont need to implement
+> concreate implementation in the base class
+
+> we cannot instantiate the abstract class. it is just a class to be inherited from
+
+abstract class Department {
+
+constructor(protected readonly id: string, public name: string) {
+
+}
+
+// describe(this: Department) {
+// console.log(`Department (${this.id}): ${this.name}`);
+// }
+
+//defined a abstract method
+abstract describe(): void;
+
+addEmployee(employee: string) {
+// this.id="d2"
+this.employees.push(employee);
+}
+printEmployeeInformation() {
+console.log(this.employees.length);
+console.log(this.employees);
+}
+}
+
+class ITDepartment extends Department {
+constructor(id: string, public admins: string[]) {
+super(id, "IT");
+this.admins = admins;
+}
+//now we need to define this abstract method implementation in each class
+describe() {
+console.log("IT department", this.id);
+}
+}
+
+# singleton and private constructors
+
+==========================================================================================
+
+ensuring only there is one instance of certain classes.
+
+we will make constructor as private so cannot be accessed from outside class, so we will create static method "getinstance" as
+static can be accessed from outside.
+
+class AccountingDepartment extends Department {
+private lastReport: string;
+private static instance: AccountingDepartment;
+
+get mostRecentReport() {
+if (this.lastReport) return this.lastReport;
+
+    throw new Error("No Report found !");
+
+}
+
+set mostRecentReport(value: string) {
+if (!value) throw new Error("Please pass in a valid value!");
+this.addReport(value);
+}
+
+private constructor(id: string, public reports: string[]) {
+super(id, "Accounting");
+this.lastReport = reports[0];
+}
+
+static getInstance() {
+if (AccountingDepartment.instance) {
+return this.instance;
+}
+this.instance = new AccountingDepartment("d2", []);
+return this.instance;
+}
+
+addEmployee(name: string) {
+if (name === "Max") {
+return;
+}
+this.employees.push(name);
+}
+addReport(text: string) {
+this.reports.push(text);
+this.lastReport = text;
+}
+printReports() {
+console.log(this.reports);
+}
+describe() {
+console.log("Accounting department", this.id);
+}
+}
+
+// const accounting = new AccountingDepartment("d2", []);
+const accounting = AccountingDepartment.getInstance();
+
+# interfaces:
+
+=============================================
+
+descibes the structure of the object, we can use it to describe how an object should look like.
+
+> we will get error if we try to intialise the values there "An interface property cannot have an initializer."
+
+interface Person{
+name:string='Max';
+age:number;
+}
+
+> we can define just the structure of varibales and methods
+
+interface Person{
+name:string;
+age:number;
+greet(phrase:string):void;
+}
+
+> once defined , we can assign the interface type and can use it
+
+let user1: Person;
+
+user1 = {
+name: "Max",
+age: 30,
+greet(phrase: string) {
+console.log(phrase + " " + this.name);
+},
+};
+
+user1.greet("Hi there - I am ");
+
+# using interfaces with classes
+
+==========================================================================================
+
+we can also use "types" to describe the same "Person" object instead of interface ie
+
+type Person= {
+name: string;
+age: number;
+
+greet(phrase: string): void;
+}
+
+usually we define object types with interfaces. it is contract a class can implement and then class has to adhere to .
+
+> class can implement multiple interfaces but only can extend single class
+
+> once we implement a interface we need to implement interface variable and method
+
+> we use interface to share common functionality among classes
+
+let user1: Greetable;
+
+class Person implements Greetable{
+name:string;
+
+constructor(n:string){
+this.name= n;
+}
+greet(phrase: string): void {
+console.log(phrase + " " + this.name);
+}
+}
+
+user1 = {
+name: "Max",
+greet(phrase: string) {
+console.log(phrase + " " + this.name);
+},
+};
+
+user1.greet("Hi there - I am ");
+
+user1=new Person('Max');
+
+# why interfaces
+
+==========================================================================================
+
+when we want certain set of functiobality ie some method. we want to ensure a class has that particular method.then we can implement
+a interface which forces the class to have that method.
+
+once we define a type as of created "interface" then we want the variable to hold the methods/variables defined in the interface.
+
+# readonly interface properties
+
+==========================================================================================
+
+> we can add "readonly" within interface but not "public" and "private". the value then can only be set once and then read only afterwards
+
+interface Greetable {
+readonly name: string;
+greet(phrase: string): void;
+}
+
+# extends interfaces
+
+=============================================
+
+> we can combine interfaces using "extends" keyword
+
+interface Named{
+readonly name: string;
+}
+
+interface Greetable extends Named {
+
+greet(phrase: string): void;
+}
+
+> and also we will get flexibilty to use two interfaces , depending on need the class can use these
+
+> also we can extend the interface using multiple interface which is not possible in classes
+
+interface Greetable extends Named,AnotherInterface {
+
+greet(phrase: string): void;
+}
+
+# interfaces as function types
+
+=============================================
+
+can be used as replacement of function types
+
+we use function type like below:
+
+//we can define function types as below, where it accepts two numbers and return a number
+type AddFn=(a:number,b:number)=>number;
+
+let add:AddFn;
+
+add=(n1:number, n2:number)=>{
+return n1+n2
+}
+
+instead we can use interface as well
+
+# optional parameters and properties
+
+==========================================================================================
+
+we can add optional methods and properties in interface using "?"
+
+interface Named {
+readonly name: string;
+outputName?:string;
+}
+
+also can be used in classes
+
+interface Named {
+readonly name?: string;
+outputName?:string;
+}
+
+interface Greetable extends Named {
+greet(phrase: string): void;
+}
+
+let user1: Greetable;
+
+class Person implements Greetable {
+name?: string;
+
+constructor(n?: string) {
+if(n){
+this.name = n;
+}
+}
+greet(phrase: string): void {
+console.log(phrase + " " + this.name);
+}
+}
+
+# compiling interfaces to JS
+
+==========================================================================================
+
+there is no translation for interfaces in JS, no translation will come in JS file for it like we had for classes, and other TS features
